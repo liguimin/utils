@@ -6,12 +6,12 @@
  * Time: 9:58
  */
 
-namespace utils;
+namespace liguimin\utils;
 
 
 class Test
 {
     public function test(){
-
+        echo 'test';
     }
 }

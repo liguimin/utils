@@ -1,0 +1,10 @@
+{
+    "name": "liguimin/utils",
+    "description": "utils just for myself",
+    "require": {},
+    "autoload":{
+        "psr-4":{
+            "liguimin\\utils\\":"src"
+        }
+    }
+}
