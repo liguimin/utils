@@ -18,4 +18,8 @@ class Test
     public function test2(){
         echo 'test2';
     }
+
+    public function test4(){
+        echo 'test4';
+    }
 }
