@@ -1,6 +1,13 @@
 {
     "name": "liguimin/utils",
     "description": "utils just for myself",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "liguimin",
+            "email": "610148007@qq.com"
+        }
+    ],
     "require": {
         "php":">=5.4"
     },
