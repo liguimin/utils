@@ -1,7 +1,9 @@
 {
     "name": "liguimin/utils",
     "description": "utils just for myself",
-    "require": {},
+    "require": {
+        "php":">=5.4"
+    },
     "autoload":{
         "psr-4":{
             "liguimin\\utils\\":"src"
