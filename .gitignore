@@ -3,3 +3,4 @@
 test.php
 composer.lock
 /runtime/
+test_curl.php
