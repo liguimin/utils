@@ -6,7 +6,7 @@
  * Time: 10:51
  */
 
-namespace liguimin\utils\curl;
+namespace liguimin\utils;
 
 
 class Curl
@@ -17,7 +17,7 @@ class Curl
 
     private $timeout = 30;//超时时长（s）
 
-    private $useragent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)';//浏览器类型
+    private $useragent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1';//浏览器类型
 
     private $referer = '';//请求来源
 
@@ -36,8 +36,6 @@ class Curl
     private $followlocation = true;//是否跟踪重定向的页面
 
     private $returntransfer = true;//TRUE 将curl_exec()获取的信息以字符串返回，而不是直接输出。
-
-    private $curl_info = [];//curl连接句柄的信息
 
     private $http_code;//响应的http状态码
 
@@ -73,7 +71,7 @@ class Curl
      * @param null $val
      * @return array
      */
-    public function addOption($name, $val = null)
+    protected function addOption($name, $val = null)
     {
         if (is_array($name)) {//数组批量传入
             $this->options = $name + $this->options;
@@ -83,12 +81,17 @@ class Curl
         return $this->options;
     }
 
+
     /**
      * 获取curl选项
-     * @return array
+     * @param null $name
+     * @return array|null
      */
-    public function getOptions()
+    protected function getOption($name = null)
     {
+        if ($name != null) {
+            return isset($this->options[$name]) ? $this->options[$name] : null;
+        }
         return $this->options;
     }
 
@@ -175,6 +178,15 @@ class Curl
     }
 
     /**
+     * 获取是否输出http头部信息
+     * @return int
+     */
+    public function getIncludeHeader()
+    {
+        return $this->includeHeader;
+    }
+
+    /**
      * 设置是否不输出html的body部分
      * @param $bool
      * @return int
@@ -184,6 +196,15 @@ class Curl
         if ($bool) {
             $this->no_body = 1;
         }
+        return $this->no_body;
+    }
+
+    /**
+     * 获取是否不输出html的body部分的值
+     * @return int
+     */
+    public function getNoBody()
+    {
         return $this->no_body;
     }
 
@@ -261,17 +282,20 @@ class Curl
     /**
      * 执行curl获取返回值
      * @param null $url
-     * @param null $method
      * @param null $data
-     * @return mixed
+     * @param null $method
+     * @param array $options
+     * @param string $postname
+     * @param string $mimetype
+     * @return bool|mixed
      */
-    public function request($url = null, $data = null, $method = null)
+    public function request($url = null, $data = null, $method = null, $options = [],$postname='',$mimetype='')
     {
-        if ($url != null) {
+        if ($url) {
             $this->setUrl($url);
         }
 
-        if ($method != null) {
+        if ($method) {
             $this->setMethod($method);
         }
 
@@ -279,42 +303,43 @@ class Curl
             $this->setData($data);
         }
 
-        $options = [
-            CURLOPT_URL            => $this->url,//请求url
-            CURLOPT_TIMEOUT        => $this->timeout,//超时时间
-            CURLOPT_FOLLOWLOCATION => $this->followlocation,//是否跟踪页面重定向
-            CURLOPT_RETURNTRANSFER => $this->returntransfer,//TRUE 将curl_exec()获取的信息以字符串返回，而不是直接输出。
-            CURLOPT_USERAGENT      => $this->useragent,//浏览器类型
-            CURLOPT_HEADER         => $this->includeHeader,//是否输出头部
+        $r_options = [
+            CURLOPT_URL            => $this->getUrl(),//请求url
+            CURLOPT_TIMEOUT        => $this->getTimeout(),//超时时间
+            CURLOPT_FOLLOWLOCATION => $this->getFollowLocaltion(),//是否跟踪页面重定向
+            CURLOPT_RETURNTRANSFER => $this->getReturntransfer(),//TRUE 将curl_exec()获取的信息以字符串返回，而不是直接输出。
+            CURLOPT_USERAGENT      => $this->getUseragent(),//浏览器类型
+            CURLOPT_HEADER         => $this->getIncludeHeader(),//是否输出头部
         ];
         //设置http头部
-        if (!empty($this->header)) {
-            $options[CURLOPT_HTTPHEADER] = $this->header;
+        if (!empty($this->getHeader())) {
+            $r_options[CURLOPT_HTTPHEADER] = $this->getHeader();
         }
         //设置请求源
-        if (!empty($this->referer)) {
-            $options[CURLOPT_REFERER] = $this->referer;
+        if (!empty($this->getReferer())) {
+            $r_options[CURLOPT_REFERER] = $this->getReferer();
         }
         //是否忽略html中的body的内容
-        if ($this->no_body) {
-            $options[CURLOPT_NOBODY] = $this->no_body;
+        if ($this->getNoBody()) {
+            $r_options[CURLOPT_NOBODY] = $this->getNoBody();
         }
         //http basic验证
         if ($this->authentication == 1) {
-            $options[CURLOPT_USERPWD] = $this->auth_name . ':' . $this->auth_pwd;
+            $r_options[CURLOPT_USERPWD] = $this->auth_name . ':' . $this->auth_pwd;
         }
         //是否输出http头部
-        if ($this->includeHeader == 1) {
-            $options[CURLOPT_USERPWD] = $this->auth_name . ':' . $this->auth_pwd;
+        if ($this->getIncludeHeader() == 1) {
+            $r_options[CURLOPT_HEADER] = $this->getIncludeHeader();
         }
+
 
         //初始化句柄
         $ch = curl_init();
-        try{
+        try {
             //批量设置curl选项
-            $this->addOption($options);
+            $this->addOption($r_options);
             //按请求方法设置选项
-            switch ($this->method) {
+            switch ($this->getMethod()) {
                 case 'GET':
                     $this->handleGet($url, $this->getData());
                     break;
@@ -322,22 +347,28 @@ class Curl
                     $this->handlePost($url, $this->getData());
                     break;
                 case 'FILE':
-                    $this->handleFile($url,$this->getData());
+                    $this->handleFile($url, $this->getData(),$postname,$mimetype);
                     break;
             }
+            //如果有传入选项，则进行设置
+            if (!empty($options)) {
+                $this->addOption($options);
+            }
+
+
             //批量设置选项
-            curl_setopt_array($ch, $this->options);
+            curl_setopt_array($ch, $this->getOption());
             //发起请求
             $response = curl_exec($ch);
             //获取响应的http状态码
             $this->http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             $this->handleException($e);
-            $response=false;
-        }catch(\Error $e){
+            $response = false;
+        } catch (\Error $e) {
             $this->handleException($e);
-            $response=false;
-        } finally{
+            $response = false;
+        } finally {
             //关闭curl
             curl_close($ch);
         }
@@ -414,40 +445,62 @@ class Curl
         }
     }
 
-    private function handleFile($url,$data){
-        if(!file_exists($data)) throw new \Exception('文件不存在');
+
+    /**
+     * 处理文件上传
+     * @param $url
+     * @param $data
+     * @param string $postname
+     * @param string $minetype
+     * @throws \Exception
+     */
+    private function handleFile($url, $data,$postname='',$minetype='')
+    {
+        $postname=$postname?$postname:'file';
+        if (!file_exists($data)) throw new \Exception('文件不存在:' . $data);
+        $data=[$postname=>$this->curl_file_create($data,$minetype,'')];
+        $this->handlePost($url,$data);
     }
+
 
     /**
      * post请求
      * @param $url
-     * @param $data
-     * @return mixed
+     * @param null $data
+     * @param array $options
+     * @return bool|mixed
      */
-    public function post($url, $data = null)
+    public function post($url, $data = null, $options = [])
     {
-        return $this->request($url, $data, 'POST');
+        return $this->request($url, $data, 'POST', $options);
     }
+
 
     /**
      * get请求
      * @param $url
-     * @param $data
-     * @return mixed
+     * @param null $data
+     * @param array $options
+     * @return bool|mixed
      */
-    public function get($url, $data = null)
+    public function get($url, $data = null, $options = [])
     {
-        return $this->request($url, $data, 'GET');
+        return $this->request($url, $data, 'GET', $options);
     }
+
 
     /**
      * 上传文件
      * @param $url
      * @param $file
-     * @return mixed
+     * @param string $postname
+     * @param array $options
+     * @param string $mimetype
+     * @return bool|mixed
      */
-    public function uploadFile($url,$file){
-        return $this->request($url,$file,'FILE');
+    public function uploadFile($url, $file,$options = [],$postname='',$mimetype='')
+    {
+        return $this->request($url, $file, 'FILE', $options,$postname,$mimetype);
     }
 
     /**
@@ -459,7 +512,30 @@ class Curl
         return $this->http_code;
     }
 
-    public function handleException(\Exception $e){
-        $this->e=$e;
+    /**
+     * 异常和错误处理方法
+     * @param \Exception $e
+     */
+    public function handleException(\Exception $e)
+    {
+        exit($e->getMessage());
+    }
+
+    /**
+     * 创建post文件
+     * @param $filename
+     * @param string $mimetype
+     * @param string $postname
+     * @return \CURLFile|string
+     */
+    private function curl_file_create($filename, $mimetype = '', $postname = '')
+    {
+        if (!function_exists('curl_file_create')) {//php<5.5
+            return "@$filename;filename="
+            . ($postname ?: basename($filename))
+            . ($mimetype ? ";type=$mimetype" : '');
+        } else {//php>=5.5
+            return curl_file_create($filename, $mimetype, $postname);
+        }
     }
 }

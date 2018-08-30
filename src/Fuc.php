@@ -57,7 +57,7 @@ class Fuc
         }
 
         foreach($tree as $key=>$val){
-            $tree[$key][$child_key_name][]=self::getTree($data,$val[$id_key_name],$pid_key_name,$id_key_name,$child_key_name);
+            $tree[$key][$child_key_name]=self::getTree($data,$val[$id_key_name],$pid_key_name,$id_key_name,$child_key_name);
         }
 
         return $tree;
