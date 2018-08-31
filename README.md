@@ -41,3 +41,16 @@ $curl->post('http://www.baidu.com',$params);
 $body = $curl->getResponseBody();
 echo $body;
 ```
+上传文件(post请求)
+``` php
+require 'vendor/autoload.php';
+
+$curl = new \liguimin\utils\Curl();
+//要上传的文件
+$filename='test.txt';
+//执行上传
+$curl->uploadFile('http://www.test.com/',$filename);
+//获取主体部分（不含http响应头）
+$body = $curl->getResponseBody();
+echo $body;
+```
