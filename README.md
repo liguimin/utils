@@ -79,11 +79,18 @@ if($curl->is_success()){//请求成功
 }
 ```
 #### 常用选项及函数
-设置请求的url
+常用选项设置
 ``` php
-$curl->setUrl('http://www.test.com?test=test');
-```
-获取已设置的url
-``` php
-$curl->getUrl();
+//设置请求的url
+$curl->setUrl('http://www.test.com');
+//设置超时时间（默认30s）
+$curl->setTimeout(20);
+//设置浏览器标识
+$curl->setUseragent('Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1');
+//设置请求源
+$curl->setReferer('http://www.testreferer.com');
+//进行http basic认证
+$curl->useAuth('username','password');
+//开启时会将响应头信息作为数据流输出 true开启(默认)  false关闭
+$curl->setIncludeHeader(true);
 ```
