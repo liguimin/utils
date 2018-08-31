@@ -14,7 +14,7 @@ Curl.php 封装curl，在使用时能更简便的进行post、get、上传文件
 ## 使用方法
 ### Curl类
 #### 快速入门
-##### 发起get请求
+发起get请求
 ``` php
 require 'vendor/autoload.php';
 
@@ -22,5 +22,22 @@ $curl = new \liguimin\utils\Curl();
 //发起get请求
 $curl->get('http://www.baidu.com');
 //获取主体部分（不含http响应头）
-$curl->getResponseBody();
+$body=$curl->getResponseBody();
+echo $body;
+```
+发起post请求
+``` php
+require 'vendor/autoload.php';
+
+$curl = new \liguimin\utils\Curl();
+//post参数
+$params = [
+    'user'     => 'test',
+    'password' => 'test',
+];
+//发起get请求
+$curl->post('http://www.baidu.com',$params);
+//获取主体部分（不含http响应头）
+$body = $curl->getResponseBody();
+echo $body;
 ```
