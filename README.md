@@ -41,7 +41,7 @@ $curl->post('http://www.baidu.com',$params);
 $body = $curl->getResponseBody();
 echo $body;
 ```
-上传文件(post请求)
+上传文件(post)
 ``` php
 require 'vendor/autoload.php';
 
