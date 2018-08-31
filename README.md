@@ -36,7 +36,7 @@ $params = [
     'password' => 'test',
 ];
 //发起get请求
-$curl->post('http://www.baidu.com',$params);
+$curl->post('http://www.test.com',$params);
 //获取主体部分（不含http响应头）
 $body = $curl->getResponseBody();
 echo $body;
