@@ -9,8 +9,8 @@ composer require liguimin/utils:dev-master
 ```
 
 ## 类功能简介
-Func.php 存放一些常用函数  
-Curl.php 封装curl，在使用时能更简便的进行post、get、上传文件等操作  
+Func.php 一些常用函数  
+Curl.php 简洁方便的进行get、post、上传文件等操作
 ## 使用方法
 ### Curl类
 #### 快速入门
