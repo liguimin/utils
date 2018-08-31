@@ -14,7 +14,7 @@ Curl.php 简洁方便的进行get、post、上传文件等操作
 ## 使用方法
 ### Curl类
 #### 快速入门
-##### 发起get请求
+发起get请求
 ``` php
 require 'vendor/autoload.php';
 
@@ -33,7 +33,7 @@ if($curl->is_success()){//请求成功
     echo $err_msg;
 }
 ```
-##### 发起post请求
+发起post请求
 ``` php
 require 'vendor/autoload.php';
 
@@ -57,7 +57,7 @@ if($curl->is_success()){//请求成功
     echo $err_msg;
 }
 ```
-##### 上传文件(post)
+上传文件(post)
 ``` php
 require 'vendor/autoload.php';
 
@@ -78,12 +78,12 @@ if($curl->is_success()){//请求成功
     echo $err_msg;
 }
 ```
-#### 选项设置
-##### 设置请求的url
-设置请求的url，如果最后在发起请求的时候传入了url参数，则会覆盖本函数设置的url
+#### 常用选项及函数
+设置请求的url
 ``` php
-//设置url
 $curl->setUrl('http://www.test.com?test=test');
-//发起请求（注意此处可不传url参数）
-$curl->get();
+```
+获取已设置的url
+``` php
+$curl->getUrl();
 ```
