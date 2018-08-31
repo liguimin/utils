@@ -1,8 +1,12 @@
-## 安装方法
+## 安装
 发布版本  
+```
 composer require liguimin/utils  
+```
 开发版本  
+```
 composer require liguimin/utils:dev-master  
+```
 
 ## 类功能简介
 Func.php 存放一些常用函数  
