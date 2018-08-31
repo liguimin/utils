@@ -21,9 +21,17 @@ require 'vendor/autoload.php';
 $curl = new \liguimin\utils\Curl();
 //发起get请求
 $curl->get('http://www.test.com?test=test');
-//获取主体部分（不含http响应头）
-$body = $curl->getResponseBody();
-echo $body;
+//检查是否请求成功，并处理返回内容
+if($curl->is_success()){//请求成功
+    $body = $curl->getResponseBody();
+    echo $body;
+
+    //接下来可以为所欲为了
+
+}else{//请求失败，打印错误信息
+    $err_msg=$curl->getErrMsg();
+    echo $err_msg;
+}
 ```
 发起post请求
 ``` php
