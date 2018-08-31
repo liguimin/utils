@@ -20,9 +20,9 @@ require 'vendor/autoload.php';
 
 $curl = new \liguimin\utils\Curl();
 //发起get请求
-$curl->get('http://www.baidu.com');
+$curl->get('http://www.test.com?test=test');
 //获取主体部分（不含http响应头）
-$body=$curl->getResponseBody();
+$body = $curl->getResponseBody();
 echo $body;
 ```
 发起post请求
