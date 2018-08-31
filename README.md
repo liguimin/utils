@@ -8,7 +8,7 @@ composer require liguimin/utils
 composer require liguimin/utils:dev-master  
 ```
 
-## 类功能简介
+## 简介
 Func.php 一些常用函数  
 Curl.php 简洁方便的进行get、post、上传文件等操作
 ## 使用方法
