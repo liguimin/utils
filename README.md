@@ -125,7 +125,7 @@ $curl->getCurlInfo('http_code');//获取单个信息
 $curl->getResponse();
 //获取响应的http状态码
 $curl->getHttpCode();
-//获取响应头部
+//获取响应头部（如果设置了$curl->setIncludeHeader(true)，则本函数返回null）
 $curl->getResponseHeader();//获取所有
 $curl->getResponseHeader('Content-type');//获取单个
 //获取响应的主体部分（不含响应头部）
