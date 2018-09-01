@@ -31,7 +31,7 @@ class Curl
 
     private $no_body = 0;//启用时不输出html的body部分 0禁用 1启用
 
-    private $header = [];//http头字段
+    private $request_header = [];//请求头
 
     private $followlocation = true;//是否跟踪重定向的页面
 
@@ -55,12 +55,15 @@ class Curl
 
     private $err_code;//错误码
 
-    private $curl_err_code=0;//最后一次curl错误码
+    private $curl_err_code = 0;//最后一次curl错误码
 
     private $curl_err_msg;//最后一次curl错误信息
 
     private $response_header_size;//最后一次传输的http头部的大小
 
+    private $ssl_verify = false;//是否进行证书验证（https）
+
+    private $ch;//curl句柄
 
     /**
      * 设置请求的url
@@ -231,24 +234,37 @@ class Curl
      * @param null $val
      * @return array
      */
-    public function addHeader($name, $val = null)
+    public function addRequestHeader($name, $val = null)
     {
         if (is_array($name)) {
-            $this->header = array_merge($this->header, $name);
+            $this->request_header = $name + $this->request_header;
         } else {
-            $this->header[$name] = $val;
+            $this->request_header[$name] = $val;
         }
 
-        return $this->header;
+        return $this->request_header;
     }
 
     /**
-     * 获取http请求头部信息
+     * 获取http请求头
      * @return array
      */
-    public function getHeader()
+    public function getRequestHeader()
     {
-        return $this->header;
+        return $this->request_header;
+    }
+
+    /**
+     * 获取格式化的请求头数组
+     * @return array
+     */
+    private function getRequestHeaderArr()
+    {
+        $header_arr = [];
+        foreach ($this->getRequestHeader() as $key => $val) {
+            $header_arr[] = $key . ': ' . $val;
+        }
+        return $header_arr;
     }
 
     /**
@@ -294,18 +310,37 @@ class Curl
         return $this->returntransfer;
     }
 
+    /**
+     * 设置是否进行证书验证
+     * @param $bool
+     * @return bool
+     */
+    public function setSslVerify($bool)
+    {
+        return $this->ssl_verify = $bool ? true : false;
+    }
 
     /**
-     * 执行curl获取返回值
-     * @param null $url
-     * @param null $data
-     * @param null $method
-     * @param array $options
-     * @param string $postname
-     * @param string $mimetype
-     * @return $this|Curl
+     * 获取是否进行证书验证的设置值
+     * @return bool
      */
-    public function request($url = null, $data = null, $method = null, $options = [], $postname = '', $mimetype = '')
+    public function getSslVerify()
+    {
+        return $this->ssl_verify;
+    }
+
+
+    /**
+     * 构建curl选项
+     * @param $url
+     * @param $data
+     * @param $method
+     * @param $options
+     * @param $postname
+     * @param $mimetype
+     * @throws \Exception
+     */
+    private function buildOptions($url, $data, $method, $options, $postname, $mimetype)
     {
         if ($url) {
             $this->setUrl($url);
@@ -328,8 +363,8 @@ class Curl
             CURLOPT_HEADER         => $this->getIncludeHeader(),//是否输出头部
         ];
         //设置http头部
-        if (!empty($this->getHeader())) {
-            $r_options[CURLOPT_HTTPHEADER] = $this->getHeader();
+        if (!empty($this->getRequestHeader())) {
+            $r_options[CURLOPT_HTTPHEADER] = $this->getRequestHeaderArr();
         }
         //设置请求源
         if (!empty($this->getReferer())) {
@@ -347,54 +382,90 @@ class Curl
         if ($this->getIncludeHeader() == 1) {
             $r_options[CURLOPT_HEADER] = $this->getIncludeHeader();
         }
+        //是否进行证书验证（https）
+        if (!$this->ssl_verify) {
+            $r_options[CURLOPT_SSL_VERIFYPEER] = false;
+            $r_options[CURLOPT_SSL_VERIFYHOST] = false;
+        }
 
+        //批量设置curl选项
+        $this->addOption($r_options);
+        //按请求方法设置选项
+        switch ($this->getMethod()) {
+            case 'GET':
+                $this->handleGet($url, $this->getData());
+                break;
+            case 'POST':
+                $this->handlePost($url, $this->getData());
+                break;
+            case 'FILE':
+                $this->handleFile($url, $this->getData(), $postname, $mimetype);
+                break;
+        }
+        //如果有传入选项，则进行设置
+        if (!empty($options)) {
+            $this->addOption($options);
+        }
+    }
 
+    /**
+     * 获取curl句柄
+     * @param $url
+     * @param $data
+     * @param $method
+     * @param $options
+     * @param $postname
+     * @param $mimetype
+     * @return resource
+     */
+    public function createCurl($url, $data, $method, $options, $postname, $mimetype){
+        //构建curl选项
+        $this->buildOptions($url, $data, $method, $options, $postname, $mimetype);
         //初始化句柄
-        $ch = curl_init();
+        $this->ch = curl_init();
+        //批量设置选项
+        curl_setopt_array($this->ch, $this->getOption());
+        return $this->ch;
+    }
+
+
+    /**
+     * 发起请求
+     * @param null $url
+     * @param null $data
+     * @param null $method
+     * @param array $options
+     * @param string $postname
+     * @param string $mimetype
+     * @return $this
+     */
+    public function request($url = null, $data = null, $method = null, $options = [], $postname = '', $mimetype = '')
+    {
         try {
-            //批量设置curl选项
-            $this->addOption($r_options);
-            //按请求方法设置选项
-            switch ($this->getMethod()) {
-                case 'GET':
-                    $this->handleGet($url, $this->getData());
-                    break;
-                case 'POST':
-                    $this->handlePost($url, $this->getData());
-                    break;
-                case 'FILE':
-                    $this->handleFile($url, $this->getData(), $postname, $mimetype);
-                    break;
-            }
-            //如果有传入选项，则进行设置
-            if (!empty($options)) {
-                $this->addOption($options);
-            }
-
-
-            //批量设置选项
-            curl_setopt_array($ch, $this->getOption());
+            //创建curl，设置句柄
+            $this->createCurl($url, $data, $method, $options, $postname, $mimetype);
             //发起请求
-            $this->response = curl_exec($ch);
+            $this->response = curl_exec($this->ch);
             //最后一次curl操作的错误码
-            $this->curl_err_code=curl_errno($ch);
-            if($this->curl_err_code!=0){
+            $this->curl_err_code = curl_errno($this->ch);
+            if ($this->curl_err_code != 0) {
                 //最后一次curl操作的错误信息
-                $this->curl_err_msg=curl_error($ch);
+                $this->curl_err_msg = curl_error($this->ch);
                 throw new \Exception($this->curl_err_msg);
             }
             //最后一次传输的相关信息
-            $this->curl_info = curl_getinfo($ch);
+            $this->curl_info = curl_getinfo($this->ch);
         } catch (\Exception $e) {
-            return $this->handleException($e);
+            $this->handleException($e);
         } catch (\Error $e) {
-            return $this->handleException($e);
+            $this->handleException($e);
         } finally {
             //关闭curl
-            curl_close($ch);
+            if($this->ch){
+                curl_close($this->ch);
+            }
+            return $this;
         }
-
-        return $this;
     }
 
     /**
@@ -574,48 +645,50 @@ class Curl
     }
 
 
+
     /**
      * 获取http响应头部
      * @param null $name
      * @return null
      */
-    public function getResponseHeader($name=null)
+    public function getResponseHeader($name = null)
     {
-        if ($this->getIncludeHeader()&&!$this->response_header && $this->getResponseHeaderSize()) {
+        if ($this->getIncludeHeader() && !$this->response_header && $this->getResponseHeaderSize()) {
             //从返回的内容中切割出响应头的字符串
             $header = substr($this->getResponse(), 0, $this->getResponseHeaderSize());
             //按换行符将字符串切割成数组
-            $header=explode("\r\n",$header);
+            $header = explode("\r\n", $header);
             //去掉数组中的空元素
             //$this->response_header=array_filter($header);
-            foreach($header as $key=>$val){
-                if($val){
-                    $arr=explode(': ',$val,2);
-                    if($key==0){
-                        $this->response_header['status']=$arr[0];
-                    }else{
-                        $this->response_header[$arr[0]]=$arr[1];
+            foreach ($header as $key => $val) {
+                if ($val) {
+                    $arr = explode(': ', $val, 2);
+                    if ($key == 0) {
+                        $this->response_header['status'] = $arr[0];
+                    } else {
+                        $this->response_header[$arr[0]] = $arr[1];
                     }
                 }
             }
         }
-        if(!empty($name)){
-            return isset($this->response_header[$name])?$this->response_header[$name]:null;
+        if (!empty($name)) {
+            return isset($this->response_header[$name]) ? $this->response_header[$name] : null;
         }
         return $this->response_header;
     }
 
 
     /**
-     * 获取请求
+     * 获取响应的主体部分（不含http头部）
      * @return string
      */
-    public function getResponseBody(){
-        if(!$this->response_body){
-            if($this->getIncludeHeader()&&$this->getResponseHeaderSize()){
-                $this->response_body=substr($this->getResponse(),$this->getResponseHeaderSize());
-            }else{
-                $this->response_body=$this->getResponse();
+    public function getResponseBody()
+    {
+        if (!$this->response_body) {
+            if ($this->getIncludeHeader() && $this->getResponseHeaderSize()) {
+                $this->response_body = substr($this->getResponse(), $this->getResponseHeaderSize());
+            } else {
+                $this->response_body = $this->getResponse();
             }
         }
 
@@ -626,7 +699,8 @@ class Curl
      * 获取最后一次curl操作的错误码
      * @return int
      */
-    public function getCurlErrCode(){
+    public function getCurlErrCode()
+    {
         return $this->curl_err_code;
     }
 
@@ -634,7 +708,8 @@ class Curl
      * 获取最后一次curl操作的错误信息
      * @return mixed
      */
-    public function getCurlErrMsg(){
+    public function getCurlErrMsg()
+    {
         return $this->curl_err_msg;
     }
 
@@ -642,9 +717,10 @@ class Curl
      * 请求是否成功
      * @return bool
      */
-    public function is_success(){
-        $http_code=$this->getHttpCode();
-        if($http_code<200||$http_code>299){
+    public function is_success()
+    {
+        $http_code = $this->getHttpCode();
+        if ($http_code < 200 || $http_code > 299) {
             return false;
         }
         return true;
@@ -666,7 +742,8 @@ class Curl
      * 获取错误信息
      * @return mixed
      */
-    public function getErrMsg(){
+    public function getErrMsg()
+    {
         return $this->err_msg;
     }
 
