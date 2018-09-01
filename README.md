@@ -154,6 +154,8 @@ $curl->is_success();
 ### CurlMulti类
 并行执行curl操作
 ``` php
+require 'vendor/autoload.php';
+
 //要发起请求的url数组
 $url_list=[
     'http://www.testurl1.com',
