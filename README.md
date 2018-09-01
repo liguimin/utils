@@ -122,8 +122,8 @@ $curl->get('http://www.test.com?test=test', null, [
     CURLINFO_HEADER_OUT => true,
     CURLOPT_NOBODY      => false,
 ]);
-//发起get请求
-$curl->post('http://www.test.com?test=test', null, [
+//发起post请求
+$curl->post('http://www.test.com', null, [
     CURLINFO_HEADER_OUT => true,
     CURLOPT_NOBODY      => false,
 ]);
