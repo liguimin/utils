@@ -90,7 +90,7 @@ $curl->setUseragent('Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1');
 //设置请求源
 $curl->setReferer('http://www.testreferer.com');
 //进行http basic认证
-$curl->useAuth('username','password');
+$curl->useAuth('username', 'password');
 //开启时会将响应头信息作为数据流输出 true开启(默认)  false关闭
 $curl->setIncludeHeader(true);
 //开启时会将html中的body部分忽略 true开启  false关闭（默认）
@@ -103,8 +103,16 @@ $curl->setReturntransfer(true);
 $curl->setMethod('get');
 //设置请求参数
 $curl->setData([
-    'username'=>'test',
-    'password'=>'test'
+    'username' => 'test',
+    'password' => 'test',
 ]);
+//是否进行证书验证(https) true是  false否(默认)
+$curl->setSslVerify(false);
+//设置请求头
+$curl->addRequestHeader('Content-type', 'text/plain');//添加单个
+$curl->addRequestHeader([
+    'Content-type'   => 'text/plain',
+    'Content-length' => '100',
+]);//使用数组批量添加
 
 ```
