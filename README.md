@@ -152,7 +152,7 @@ $curl->getErrMsg();
 $curl->is_success();
 ```
 ### CurlMulti类
-并发执行curl
+并发执行多个curl操作
 ``` php
 require 'vendor/autoload.php';
 
