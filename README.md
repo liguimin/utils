@@ -116,7 +116,7 @@ $curl->addRequestHeader([
 ]);//使用数组批量添加
 ```
 如果要设置其他curl选项，可以以如下的形式传入
-```
+``` php
 //发起get请求
 $curl->get('http://www.test.com?test=test', null, [
     CURLINFO_HEADER_OUT => true,
