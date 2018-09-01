@@ -117,7 +117,7 @@ $curl->addRequestHeader([
 
 ```
 信息获取函数
-```
+``` php
 //获取最后一次数据传输的信息，即curl_info;
 $curl->getCurlInfo();//获取所有的信息
 $curl->getCurlInfo('http_code');//获取单个信息
