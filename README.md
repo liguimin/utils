@@ -147,7 +147,7 @@ $curl->getCurlErrMsg();
 //获取最后一次curl操作的错误码(即curl_errno)
 $curl->getCurlErrCode();
 //获取最后一次出错的信息(包括即curl_error和其他错误)
-$curl->getCurlErrMsg();
+$curl->getErrMsg();
 //请求是否成功 true成功 false失败
 $curl->is_success();
 ```
