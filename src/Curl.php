@@ -409,7 +409,7 @@ class Curl
     }
 
     /**
-     * 获取curl句柄
+     * 创建并获取curl句柄
      * @param $url
      * @param $data
      * @param $method
@@ -418,7 +418,7 @@ class Curl
      * @param $mimetype
      * @return resource
      */
-    public function createCurl($url, $data, $method, $options, $postname, $mimetype){
+    public function createCurl($url=null, $data=null, $method=null, $options=[], $postname='', $mimetype=''){
         //构建curl选项
         $this->buildOptions($url, $data, $method, $options, $postname, $mimetype);
         //初始化句柄
@@ -426,6 +426,41 @@ class Curl
         //批量设置选项
         curl_setopt_array($this->ch, $this->getOption());
         return $this->ch;
+    }
+
+    /**
+     * 创建并获取get请求的句柄
+     * @param null $url
+     * @param null $data
+     * @param array $options
+     * @return resource
+     */
+    public function createGet($url=null,$data=null,$options=[]){
+        return $this->createCurl($url,$data,'GET',$options);
+    }
+
+    /**
+     * 创建并获取post请求的句柄
+     * @param null $url
+     * @param null $data
+     * @param array $options
+     * @return resource
+     */
+    public function createPost($url=null,$data=null,$options=[]){
+        return $this->createCurl($url,$data,'POST',$options);
+    }
+
+    /**
+     * 创建并获取上传文件的句柄
+     * @param $url
+     * @param $file
+     * @param array $options
+     * @param string $postname
+     * @param string $mimetype
+     * @return resource
+     */
+    public function createFile($url, $file, $options = [], $postname = '', $mimetype = ''){
+        return $this->createCurl($url,$file,$options,$postname,$mimetype);
     }
 
 
