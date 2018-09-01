@@ -114,7 +114,19 @@ $curl->addRequestHeader([
     'Content-type'   => 'text/plain',
     'Content-length' => '100',
 ]);//使用数组批量添加
-
+```
+如果要设置其他curl选项，可以以如下的形式传入
+```
+//发起get请求
+$curl->get('http://www.test.com?test=test', null, [
+    CURLINFO_HEADER_OUT => true,
+    CURLOPT_NOBODY      => false,
+]);
+//发起get请求
+$curl->post('http://www.test.com?test=test', null, [
+    CURLINFO_HEADER_OUT => true,
+    CURLOPT_NOBODY      => false,
+]);
 ```
 信息获取函数
 ``` php
@@ -139,3 +151,4 @@ $curl->getCurlErrMsg();
 //请求是否成功 true成功 false失败
 $curl->is_success();
 ```
+
