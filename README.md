@@ -151,4 +151,30 @@ $curl->getErrMsg();
 //请求是否成功 true成功 false失败
 $curl->is_success();
 ```
+### CurlMulti类
+#### 快速入门
+``` php
+$url=[
+    'http://www.testurl1.com',
+    'http://www.testurl2.com',
+    'invalid url !!'
+];
 
+//实例化
+$mult_srv=new \liguimin\utils\CurlMulti();
+
+//循环添加句柄
+foreach($url as $key=>$val){
+    $ch_srv=new \liguimin\utils\Curl();
+    $ch=$ch_srv->createGet($val);
+    $mult_srv->addHandle($ch);
+}
+
+//并行发起请求
+$res=$mult_srv->exec();
+
+echo  '<pre>';
+foreach($res as $key=>$val){
+    print_r($val);
+}
+```
