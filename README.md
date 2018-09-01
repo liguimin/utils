@@ -78,8 +78,8 @@ if($curl->is_success()){//请求成功
     echo $err_msg;
 }
 ```
-#### 常用选项及函数
-常用选项设置
+#### 常用函数
+选项设置函数
 ``` php
 //设置请求的url
 $curl->setUrl('http://www.test.com');
@@ -115,4 +115,27 @@ $curl->addRequestHeader([
     'Content-length' => '100',
 ]);//使用数组批量添加
 
+```
+信息获取函数
+```
+//获取最后一次数据传输的信息，即curl_info;
+$curl->getCurlInfo();//获取所有的信息
+$curl->getCurlInfo('http_code');//获取单个信息
+//获取返回的所有内容(如果有设置输出http头部，则将头部和主体部分一并返回)
+$curl->getResponse();
+//获取响应的http状态码
+$curl->getHttpCode();
+//响应头部
+$curl->getResponseHeader();//获取所有
+$curl->getResponseHeader('Content-type');//获取单个
+//获取响应的主体部分（不含响应头部）
+$curl->getResponseBody();
+//获取最后一次curl操作的错误信息（即curl_error）
+$curl->getCurlErrMsg();
+//获取最后一次curl操作的错误码(即curl_errno)
+$curl->getCurlErrCode();
+//获取最后一次出错的信息(包括即curl_error和其他错误)
+$curl->getCurlErrMsg();
+//请求是否成功 true成功 false失败
+$curl->is_success();
 ```
