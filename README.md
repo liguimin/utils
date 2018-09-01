@@ -176,6 +176,7 @@ foreach($url_list as $key=>$val){
 //并行发起请求
 $res=$multi->exec();
 
+//注意:$multi->exec()返回的是生成器对象（yield生成）,不能直接使用print_r($res)，只能使用foreach方式进行打印
 echo  '<pre>';
 foreach($res as $key=>$val){
     print_r($val);
