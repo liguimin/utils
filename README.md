@@ -93,4 +93,18 @@ $curl->setReferer('http://www.testreferer.com');
 $curl->useAuth('username','password');
 //开启时会将响应头信息作为数据流输出 true开启(默认)  false关闭
 $curl->setIncludeHeader(true);
+//开启时会将html中的body部分忽略 true开启  false关闭（默认）
+$curl->setNoBody(true);
+//是否跟踪页面的重定向 true是（默认） false否
+$curl->setFollowLocaltion(true);
+//开启时curl_exec会返回字符串而不是直接输出 true开启（默认） false直接输出
+$curl->setReturntransfer(true);
+//设置请求方法
+$curl->setMethod('get');
+//设置请求参数
+$curl->setData([
+    'username'=>'test',
+    'password'=>'test'
+]);
+
 ```
