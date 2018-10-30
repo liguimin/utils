@@ -47,19 +47,24 @@ class Fuc
      * @param string $child_key_name 【子集的key名称】
      * @return array
      */
-    public static function getTree(array $data,$pid,$pid_key_name='pid',$id_key_name='id',$child_key_name='child'){
-        $tree=[];
-        foreach($data as $key=>$val){
-            if($val[$pid_key_name]==$pid){
-                $tree[]=$val;
+    public static function getTree(array $data,$pid,$pid_key='pid',$id_key='id',$child_key='children'){
+
+        $tree = [];
+        foreach ($data as $key => $val) {
+            //找到符合pid条件的数据
+            if ($val[$pid_key] == $pid) {
+                //销毁该条记录
                 unset($data[$key]);
+                //查找相应的子记录
+                if (!empty($data)) {
+                    $val[$child_key] = self::getTree($data, $val[$id_key]);
+                } else {
+                    $val[$child_key] = [];
+                }
+                //添加记录
+                $tree[] = $val;
             }
         }
-
-        foreach($tree as $key=>$val){
-            $tree[$key][$child_key_name]=self::getTree($data,$val[$id_key_name],$pid_key_name,$id_key_name,$child_key_name);
-        }
-
         return $tree;
     }
 
@@ -69,27 +74,5 @@ class Fuc
      */
     public static function getNow(){
         return date('Y-m-d H:i:s');
-    }
-
-
-    function get_tree($data, $pid, $id_key = 'fid', $pid_key = 'fpid', $child_key = 'children'){
-        $tree = [];
-        foreach ($data as $key => $val) {
-            //找到符合pid条件的数据
-            if ($val[$pid_key] == $pid) {
-                //销毁该条记录
-                unset($data[$key]);
-                //查找相应的子记录
-                if (!empty($data)) {
-                    $val[$child_key] = $this->getTree($data, $val[$id_key]);
-                } else {
-                    $val[$child_key] = [];
-                }
-                //添加记录
-                $tree[] = $val;
-            }
-        }
-
-        return $tree;
     }
 }
