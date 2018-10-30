@@ -75,4 +75,16 @@ class Fuc
     public static function getNow(){
         return date('Y-m-d H:i:s');
     }
+
+    /**
+     * 数组中每个元素的空格
+     * @param $params
+     * @return array
+     */
+    public static function trim($params){
+        $params = array_map(function ($v) {
+            return trim($v);
+        }, $params);
+        return $params;
+    }
 }
