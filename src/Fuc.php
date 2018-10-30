@@ -62,4 +62,34 @@ class Fuc
 
         return $tree;
     }
+
+    /**
+     * 返回当前时间
+     * @return bool|string
+     */
+    public static function getNow(){
+        return date('Y-m-d H:i:s');
+    }
+
+
+    function get_tree($data, $pid, $id_key = 'fid', $pid_key = 'fpid', $child_key = 'children'){
+        $tree = [];
+        foreach ($data as $key => $val) {
+            //找到符合pid条件的数据
+            if ($val[$pid_key] == $pid) {
+                //销毁该条记录
+                unset($data[$key]);
+                //查找相应的子记录
+                if (!empty($data)) {
+                    $val[$child_key] = $this->getTree($data, $val[$id_key]);
+                } else {
+                    $val[$child_key] = [];
+                }
+                //添加记录
+                $tree[] = $val;
+            }
+        }
+
+        return $tree;
+    }
 }
