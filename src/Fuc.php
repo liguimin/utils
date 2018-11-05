@@ -83,7 +83,10 @@ class Fuc
      */
     public static function trim($params){
         $params = array_map(function ($v) {
-            return trim($v);
+            if(is_string($v)||is_numeric($v)){
+                $v=trim($v);
+            }
+            return $v;
         }, $params);
         return $params;
     }
