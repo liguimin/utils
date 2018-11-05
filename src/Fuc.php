@@ -87,4 +87,15 @@ class Fuc
         }, $params);
         return $params;
     }
+
+    /**
+     * 获取数组里的值，key不存在则返回默认值
+     * @param $data
+     * @param $key
+     * @param null $default
+     * @return null
+     */
+    public static function getValue($data,$key,$default=null){
+        return isset($data[$key])?$data[$key]:$default;
+    }
 }
