@@ -101,4 +101,50 @@ class Fuc
     public static function getValue($data,$key,$default=null){
         return isset($data[$key])?$data[$key]:$default;
     }
+
+    /**
+     * 判断一个数组中的元素是否存在于另一个数组当中
+     * @param array $needle
+     * @param array $arr
+     * @return bool
+     */
+    public static function isArrInArr(array $needle,array $arr){
+        foreach($needle as $key=>$val){
+            if(in_array($val,$arr)) return $val;
+        }
+
+        return false;
+    }
+
+    /**
+     * 计算offset
+     * @param $page
+     * @param $limit
+     * @return mixed
+     */
+    public static function getOffset($page,$limit){
+        return ($page-1)*$limit;
+    }
+
+    /**
+     * 判断是否为空
+     * @param $var
+     * @param bool $zero_is_empty
+     * @return bool
+     */
+    public static function isEmpty($var,$zero_is_empty=true){
+        // 判断数据类型
+        switch ( gettype($var) ) {
+            case 'integer':
+                return $zero_is_empty
+                    ? (0 == $var ? true : false)             // ‘0’认为是空
+                    : (0 != $var && !$var ? true : false);   // ‘0’不认为是空
+                break;
+            case 'string':
+                return (0 == strlen($var)) ? true : false;
+                break;
+            default :
+                return empty($var)?true:false;
+        }
+    }
 }
