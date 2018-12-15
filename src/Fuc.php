@@ -9,6 +9,8 @@
 namespace liguimin\utils;
 
 
+use think\facade\Log;
+
 class Fuc
 {
     /**
@@ -26,14 +28,15 @@ class Fuc
      * @param bool $is_caps [true=转换为大写字母，false=转换为小写字母]
      * @return bool|string
      */
-    public static function decimalToLetter($num,$is_caps=true){
-        if($num<=0) return false;
-        $d=$is_caps?64:96;
-        $str='';
-        while($num>0){
-            $rem=$num%26;
-            $str=chr($rem+$d).$str;
-            $num=floor($num/26);
+    public static function decimalToLetter($num, $is_caps = true)
+    {
+        if ($num <= 0) return false;
+        $d = $is_caps ? 64 : 96;
+        $str = '';
+        while ($num > 0) {
+            $rem = $num % 26;
+            $str = chr($rem + $d) . $str;
+            $num = floor($num / 26);
         }
         return $str;
     }
@@ -47,7 +50,8 @@ class Fuc
      * @param string $child_key_name 【子集的key名称】
      * @return array
      */
-    public static function getTree(array $data,$pid,$pid_key='pid',$id_key='id',$child_key='children'){
+    public static function getTree(array $data, $pid, $pid_key = 'pid', $id_key = 'id', $child_key = 'children')
+    {
 
         $tree = [];
         foreach ($data as $key => $val) {
@@ -72,7 +76,8 @@ class Fuc
      * 返回当前时间
      * @return bool|string
      */
-    public static function getNow(){
+    public static function getNow()
+    {
         return date('Y-m-d H:i:s');
     }
 
@@ -81,10 +86,11 @@ class Fuc
      * @param $params
      * @return array
      */
-    public static function trim($params){
+    public static function trim($params)
+    {
         $params = array_map(function ($v) {
-            if(is_string($v)||is_numeric($v)){
-                $v=trim($v);
+            if (is_string($v) || is_numeric($v)) {
+                $v = trim($v);
             }
             return $v;
         }, $params);
@@ -98,8 +104,9 @@ class Fuc
      * @param null $default
      * @return null
      */
-    public static function getValue($data,$key,$default=null){
-        return isset($data[$key])?$data[$key]:$default;
+    public static function getValue($data, $key, $default = null)
+    {
+        return isset($data[$key]) ? $data[$key] : $default;
     }
 
     /**
@@ -108,9 +115,10 @@ class Fuc
      * @param array $arr
      * @return bool
      */
-    public static function isArrInArr(array $needle,array $arr){
-        foreach($needle as $key=>$val){
-            if(in_array($val,$arr)) return $val;
+    public static function isArrInArr(array $needle, array $arr)
+    {
+        foreach ($needle as $key => $val) {
+            if (in_array($val, $arr)) return $val;
         }
 
         return false;
@@ -122,8 +130,9 @@ class Fuc
      * @param $limit
      * @return mixed
      */
-    public static function getOffset($page,$limit){
-        return ($page-1)*$limit;
+    public static function getOffset($page, $limit)
+    {
+        return ($page - 1) * $limit;
     }
 
     /**
@@ -132,9 +141,10 @@ class Fuc
      * @param bool $zero_is_empty
      * @return bool
      */
-    public static function isEmpty($var,$zero_is_empty=true){
+    public static function isEmpty($var, $zero_is_empty = true)
+    {
         // 判断数据类型
-        switch ( gettype($var) ) {
+        switch (gettype($var)) {
             case 'integer':
                 return $zero_is_empty
                     ? (0 == $var ? true : false)             // ‘0’认为是空
@@ -144,7 +154,139 @@ class Fuc
                 return (0 == strlen($var)) ? true : false;
                 break;
             default :
-                return empty($var)?true:false;
+                return empty($var) ? true : false;
         }
+    }
+
+    /**
+     * 将树形结构解析为数组，并在指定键值上($key)上加上某个字符串（$str）
+     * @param $tree
+     * @param $str
+     * @param string $chname
+     * @return array
+     */
+    public static function unTree($tree, $str, $key, $space = '&nbsp;', $chname = 'children')
+    {
+        $result = [];
+        $space .= $space;
+        foreach ($tree as $val) {
+            $children = [];
+            if (isset($val[$chname])) {
+                $children = $val[$chname];
+                unset($val[$chname]);
+            }
+            if ($val['pid'] != 0) {
+                $val[$key] = $space . $str . $val[$key];
+            }
+            $result[] = $val;
+            if (!empty($children)) {
+                $children = self::unTree($children, $str, $key, $space);
+                // $result[]=$children;
+                $result = array_merge($result, $children);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * 获取当前日期
+     * @return bool|string
+     */
+    public static function getNowDate()
+    {
+        return date('Y-m-d');
+    }
+
+    /**
+     * 获取页数
+     * @param $count
+     * @param $limit
+     * @return float
+     */
+    public static function getPageCount($count, $limit)
+    {
+        return ceil($count / $limit);
+    }
+
+    /**
+     * 返回两个时间的月份差
+     * @param $start_date
+     * @param $end_date
+     * @return bool|string
+     */
+    public static function getMonthDiff($start_date, $end_date)
+    {
+        $start_year = date('Y', strtotime($start_date));
+        $end_year = date('Y', strtotime($start_date));
+        $start_month = intval(date('m', strtotime($start_date)));
+        $end_month = intval(date('m', strtotime($end_date)));
+
+        $year_diff = $end_year - $start_year;
+        $month_diff = $end_month - $start_month;
+
+        $result = $year_diff * 12 + $month_diff;
+
+        return $result;
+    }
+
+    /**
+     * 简化数字显示成xxx亿这样的格式
+     * @param $num
+     * @param int $base_num
+     * @param string $subffix
+     * @return float|string
+     */
+    public static function simNum($num,$base_num=100000000,$subffix='亿'){
+        if(floor($num/$base_num)>=1){
+            $num=round($num/$base_num,6);
+            $num=$num.$subffix;
+        }
+        return $num;
+    }
+
+    /**
+     * 根据日期获取当天的最后时间
+     * @param $day
+     * @return string
+     */
+    public static function getDayEnd($day){
+        return $day.' 23:59:59';
+    }
+
+    /**
+     * 根据日期获取当天0点的时间
+     * @param $day
+     * @return string
+     */
+    public static function getDayStart($day){
+        return $day.' 00:00:00';
+    }
+
+    /**
+     * 两个数相减，如果结果小于0则取0
+     * @param $num1
+     * @param $num2
+     * @return int
+     */
+    public static function numDiffMinusToZero($num1,$num2){
+        $num_diff=$num1-$num2;
+        return $num_diff<0?0:$num_diff;
+    }
+
+    /**
+     * 数字简化
+     * @param $num
+     * @return float|string
+     */
+    public static function numSimp($num){
+        if($num>=100000000){//转换亿
+            $num=$num/100000000;
+            $num.='亿';
+        }elseif($num>=10000){//转换万
+            $num=$num/10000;
+            $num.='万';
+        }
+        return $num;
     }
 }
