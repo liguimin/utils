@@ -50,9 +50,8 @@ class Fuc
      * @param string $child_key_name 【子集的key名称】
      * @return array
      */
-    public static function getTree(array $data, $pid, $pid_key = 'pid', $id_key = 'id', $child_key = 'children')
+    public static function getTree($data, $pid, $pid_key = 'pid', $id_key = 'id', $child_key = 'children')
     {
-
         $tree = [];
         foreach ($data as $key => $val) {
             //找到符合pid条件的数据
@@ -61,7 +60,7 @@ class Fuc
                 unset($data[$key]);
                 //查找相应的子记录
                 if (!empty($data)) {
-                    $val[$child_key] = self::getTree($data, $val[$id_key]);
+                    $val[$child_key] = self::getTree($data, $val[$id_key], $pid_key, $id_key, $child_key);
                 } else {
                     $val[$child_key] = [];
                 }
@@ -231,16 +230,27 @@ class Fuc
     }
 
     /**
+     * 获取表后缀（年_月）
+     * @param $date
+     * @return mixed
+     */
+    public static function getMonthTableSuffixByDate($date)
+    {
+        return date('Y_m', strtotime($date));
+    }
+
+    /**
      * 简化数字显示成xxx亿这样的格式
      * @param $num
      * @param int $base_num
      * @param string $subffix
      * @return float|string
      */
-    public static function simNum($num,$base_num=100000000,$subffix='亿'){
-        if(floor($num/$base_num)>=1){
-            $num=round($num/$base_num,6);
-            $num=$num.$subffix;
+    public static function simNum($num, $base_num = 100000000, $subffix = '亿')
+    {
+        if (floor($num / $base_num) >= 1) {
+            $num = round($num / $base_num, 6);
+            $num = $num . $subffix;
         }
         return $num;
     }
@@ -250,8 +260,9 @@ class Fuc
      * @param $day
      * @return string
      */
-    public static function getDayEnd($day){
-        return $day.' 23:59:59';
+    public static function getDayEnd($day)
+    {
+        return $day . ' 23:59:59';
     }
 
     /**
@@ -259,8 +270,9 @@ class Fuc
      * @param $day
      * @return string
      */
-    public static function getDayStart($day){
-        return $day.' 00:00:00';
+    public static function getDayStart($day)
+    {
+        return date('Y-m-d H:s:i', strtotime($day));
     }
 
     /**
@@ -269,9 +281,10 @@ class Fuc
      * @param $num2
      * @return int
      */
-    public static function numDiffMinusToZero($num1,$num2){
-        $num_diff=$num1-$num2;
-        return $num_diff<0?0:$num_diff;
+    public static function numDiffMinusToZero($num1, $num2)
+    {
+        $num_diff = $num1 - $num2;
+        return $num_diff < 0 ? 0 : $num_diff;
     }
 
     /**
@@ -279,14 +292,33 @@ class Fuc
      * @param $num
      * @return float|string
      */
-    public static function numSimp($num){
-        if($num>=100000000){//转换亿
-            $num=$num/100000000;
-            $num.='亿';
-        }elseif($num>=10000){//转换万
-            $num=$num/10000;
-            $num.='万';
+    public static function numSimp($num)
+    {
+        if ($num >= 100000000) {//转换亿
+            $num = $num / 100000000;
+            $num .= '亿';
+        } elseif ($num >= 10000) {//转换万
+            $num = $num / 10000;
+            $num .= '万';
         }
         return $num;
+    }
+
+    /**
+     * 检查设备类型（目前只有检查安卓和IOS）
+     * @return string
+     */
+    public static function getDeviceType()
+    {
+        //全部变成小写字母
+        $agent = strtolower($_SERVER['HTTP_USER_AGENT']);
+        $type = 'other';
+        //分别进行判断
+        if (strpos($agent, 'iphone') || strpos($agent, 'ipad')) {
+            $type = 'ios';
+        } elseif (strpos($agent, 'android')) {
+            $type = 'android';
+        }
+        return $type;
     }
 }
