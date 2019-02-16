@@ -217,7 +217,7 @@ class Fuc
     public static function getMonthDiff($start_date, $end_date)
     {
         $start_year = date('Y', strtotime($start_date));
-        $end_year = date('Y', strtotime($start_date));
+        $end_year = date('Y', strtotime($end_date));
         $start_month = intval(date('m', strtotime($start_date)));
         $end_month = intval(date('m', strtotime($end_date)));
 
@@ -294,14 +294,22 @@ class Fuc
      */
     public static function numSimp($num)
     {
-        if ($num >= 100000000) {//转换亿
-            $num = $num / 100000000;
-            $num .= '亿';
-        } elseif ($num >= 10000) {//转换万
-            $num = $num / 10000;
-            $num .= '万';
+        $num_abs=abs($num);
+        if ($num_abs >= 100000000) {//转换亿
+            $num_abs = $num_abs / 100000000;
+            $num_abs .= '亿';
+        } elseif ($num_abs >= 10000) {//转换万
+            $num_abs = $num_abs / 10000;
+            $num_abs .= '万';
         }
-        return $num;
+
+        if($num<0){
+            $res='-'.$num_abs;
+        }else{
+            $res=$num_abs;
+        }
+
+        return $res;
     }
 
     /**
@@ -327,7 +335,7 @@ class Fuc
      * @param $id
      * @return bool
      */
-    static public function is_idcard( $id )
+     public static function is_idcard( $id )
     {
         $id = strtoupper($id);
         $regx = "/(^\d{15}$)|(^\d{17}([0-9]|X)$)/";
