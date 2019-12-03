@@ -48,9 +48,10 @@ class Fuc
      * @param string $pid_key_name 【父级编号的key名称】
      * @param string $id_key_name 【子编号的key名称】
      * @param string $child_key_name 【子集的key名称】
+     * @param string $val_callback 【对树的每个子集做处理】
      * @return array
      */
-    public static function getTree($data, $pid, $pid_key = 'pid', $id_key = 'id', $child_key = 'children')
+    public static function getTree($data, $pid, $pid_key = 'pid', $id_key = 'id', $child_key = 'children',$val_callback=null)
     {
         $tree = [];
         foreach ($data as $key => $val) {
@@ -60,10 +61,15 @@ class Fuc
                 unset($data[$key]);
                 //查找相应的子记录
                 if (!empty($data)) {
-                    $val[$child_key] = self::getTree($data, $val[$id_key], $pid_key, $id_key, $child_key);
+                    $val[$child_key] = self::getTree($data, $val[$id_key], $pid_key, $id_key, $child_key,$val_callback);
                 } else {
                     $val[$child_key] = [];
                 }
+
+                if($val_callback){
+                    $val=call_user_func_array($val_callback,['val'=>$val]);
+                }
+
                 //添加记录
                 $tree[] = $val;
             }
@@ -383,5 +389,28 @@ class Fuc
                 }
             }
         }
+    }
+
+    /**
+     * 根据二维数组中的某个key去掉其中的重复值（保留第一个重复值）
+     * @param array $array
+     * @param $key
+     * @return array
+     */
+    public static function arrayUnique(array $array,$key){
+        $result=[];
+        foreach($array as $val){
+            $is_exit=false;
+            foreach($result as $v){
+                if($val[$key]==$v[$key]){
+                    $is_exit=true;
+                }
+            }
+            if(!$is_exit){
+                $result[]=$val;
+            }
+        }
+
+        return $result;
     }
 }
