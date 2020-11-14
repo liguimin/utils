@@ -413,4 +413,13 @@ class Fuc
 
         return $result;
     }
+
+    /**
+     * 生成16位订单号
+     * @param $prefix
+     * @return string
+     */
+    public static function createOrderNo($prefix){
+       return $prefix.date('YmdHis').rand(10,99);
+    }
 }
